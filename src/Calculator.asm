@@ -29,6 +29,8 @@ _start:
     mov edx, WelcomeLen
     int 0x80
 
+    ; Imprimir dos salto de línea
+    call print_newline
     call print_newline
 
     ; Solicitar al usuario que ingrese una cadena de texto
@@ -44,6 +46,9 @@ _start:
     mov ecx, Buffer
     mov edx, 100
     int 0x80
+
+    ; imprime un salto de línea
+    call print_newline
 
     ; Escribir el mensaje de salida en la consola
     mov eax, 4
