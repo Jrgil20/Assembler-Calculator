@@ -201,3 +201,59 @@ En cada iteración del bucle, la instrucción `mov edi, buffer` reinicializa `ED
 
 **Solución canónica en x86:**  
 `mov edi, buffer` debe inicializarse una única vez **antes** de comenzar el bucle `loop_operacion`.
+
+---
+
+## 7. El Salto a una Calculadora Real: Aritmética y Conversión
+
+Para transformar este parser de caracteres en una calculadora operativa real, en lenguaje ensamblador se deben resolver tres problemas que en lenguajes de alto nivel damos por sentados:
+
+### 7.1 Algoritmo `atoi` (ASCII to Integer)
+Cuando el usuario teclea `'4'` y `'2'`, el buffer recibe los códigos ASCII `0x34` (52) y `0x32` (50). La CPU no puede sumar directamente los caracteres ASCII. El algoritmo de conversión opera acumulando:
+
+$$\text{acumulado} = (\text{acumulado} \times 10) + (\text{carácter} - '0')$$
+
+En x86-32:
+```nasm
+; ESI apunta al string ("42"), EAX contendrá el entero resultante
+xor eax, eax            ; acumulador = 0
+atoi_loop:
+    movzx ecx, byte [esi]
+    cmp ecx, '0'
+    jl atoi_done
+    cmp ecx, '9'
+    jg atoi_done
+    sub ecx, '0'         ; Convierte ASCII a dígito binario (0-9)
+    imul eax, eax, 10    ; acumulador * 10
+    add eax, ecx         ; acumulador + nuevo dígito
+    inc esi
+    jmp atoi_loop
+atoi_done:
+```
+
+### 7.2 Operaciones Aritméticas del Procesador
+Una vez convertidos los operandos a enteros binarios (por ejemplo, en `EAX` y `EBX`):
+
+- **Suma:** `add eax, ebx`
+- **Resta:** `sub eax, ebx`
+- **Multiplicación:** `imul eax, ebx` (para enteros con signo)
+- **División:** `cdq` (extiende el signo de `EAX` en `EDX:EAX`) seguido de `idiv ebx` (el cociente queda en `EAX` y el resto en `EDX`).
+
+### 7.3 Algoritmo `itoa` (Integer to ASCII)
+Para imprimir el resultado con `sys_write`, el número binario debe descomponerse de vuelta a caracteres ASCII mediante divisiones sucesivas por 10:
+
+```nasm
+; Convierte EAX en string dentro de un buffer de salida
+mov ebx, 10
+mov edi, buffer_resultado_fin ; Escribir de derecha a izquierda
+itoa_loop:
+    xor edx, edx
+    div ebx              ; EAX / 10 -> Cociente en EAX, Resto en EDX
+    add dl, '0'          ; Convierte el dígito restante a ASCII
+    dec edi
+    mov [edi], dl
+    test eax, eax
+    jnz itoa_loop
+    ; EDI ahora apunta al inicio del string formateado listo para sys_write
+```
+

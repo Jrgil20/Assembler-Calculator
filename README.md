@@ -57,7 +57,21 @@ sudo apt update
 sudo apt install -y nasm binutils gcc-multilib
 ```
 
-### Comandos de Construcción
+### Compilación y Ejecución con Makefile (Recomendado)
+```bash
+# Compilar y ejecutar en un solo comando
+make run
+
+# O compilar únicamente:
+make build
+
+# Limpiar artefactos generados:
+make clean
+```
+
+<details>
+<summary>Comandos manuales directos (sin Make)</summary>
+
 ```bash
 # 1. Ensamblar a código objeto ELF de 32 bits
 nasm -f elf32 src/Calculator.asm -o src/Calculator.o
@@ -68,6 +82,7 @@ ld -m elf_i386 src/Calculator.o -o src/Calculator
 # 3. Ejecutar
 ./src/Calculator
 ```
+</details>
 
 ---
 
@@ -78,11 +93,14 @@ ld -m elf_i386 src/Calculator.o -o src/Calculator
 ├── .devcontainer/
 │   └── devcontainer.json               # Configuración para entorno reproducible Docker
 ├── docs/
-│   ├── assembly-guide.md               # Fundamentos de Assembly x86, registros y syscalls
+│   ├── assembly-guide.md               # Fundamentos de x86, registros, syscalls y atoi/itoa
 │   └── troubleshooting-and-toolchain.md # Guía de compilación, flags y resolución de errores
 ├── src/
 │   └── Calculator.asm                  # Código fuente original en NASM (Intel syntax)
 ├── LICENSE                             # Licencia MIT
+├── Makefile                            # Automatización de compilación, ejecución y limpieza
+└── README.md                           # Documentación principal del proyecto
+```
 └── README.md                           # Documentación principal del proyecto
 ```
 
